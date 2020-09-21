@@ -96,6 +96,7 @@ public class PostDetailActivity extends AppCompatActivity {
         profileLayout = findViewById(R.id.profileLayoutID);
         commentEt =findViewById(R.id.commentEtId);
         sendBtn = findViewById(R.id.SendBtnID_c);
+
         cAvaterIv =findViewById(R.id.cAvaterIvId);
 
 
@@ -446,7 +447,7 @@ public class PostDetailActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot ds: dataSnapshot.getChildren()){
                    myName =""+ds.child("name").getValue();
-                   myDp =""+ds.child("user").getValue();
+                   myDp =""+ds.child("image").getValue();
 
                    try{
                        Picasso.get().load(myDp).placeholder(R.drawable.ic_default_img).into(cAvaterIv);
@@ -488,7 +489,7 @@ public class PostDetailActivity extends AppCompatActivity {
                     hisDp = ""+ds.child("uDp").getValue();
                     hisUid = ""+ds.child("uid").getValue();
                     String uEmail = ""+ds.child("uEmail").getValue();
-                    hisName = ""+ds.child("hisName").getValue();
+                    hisName = ""+ds.child("uName").getValue();
                     String pCommentsCount  = ""+ds.child("pComments").getValue();
 
 
