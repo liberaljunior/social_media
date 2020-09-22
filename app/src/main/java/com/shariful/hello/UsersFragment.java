@@ -42,207 +42,207 @@ import java.util.List;
  */
 public class UsersFragment extends Fragment {
 
-    RecyclerView recyclerView;
-    AdapterUsers adapterUsers;
-    List<ModelUser> userList;
+  RecyclerView recyclerView;
+  AdapterUsers adapterUsers;
+  List<ModelUser> userList;
 
-    FirebaseAuth firebaseAuth;
-
-
-    public UsersFragment() {
-        // Required empty public constructor
-    }
+  FirebaseAuth firebaseAuth;
 
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-       View view =  inflater.inflate(R.layout.fragment_users, container, false);
-
-        firebaseAuth=FirebaseAuth.getInstance();
-
-          recyclerView = view.findViewById(R.id.user_recyclerViewID);
-          recyclerView.setHasFixedSize(true);
-          recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+  public UsersFragment() {
+    // Required empty public constructor
+  }
 
 
-          //init userList
-        userList = new ArrayList<>();
-        //get All users
-        getAllUsers();
+  @Override
+  public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                           Bundle savedInstanceState) {
+    // Inflate the layout for this fragment
+    View view =  inflater.inflate(R.layout.fragment_users, container, false);
 
-       return view;
-    }
+    firebaseAuth=FirebaseAuth.getInstance();
 
-    private void getAllUsers()
-    {
-         //get current user
-        final FirebaseUser FUser = FirebaseAuth.getInstance().getCurrentUser();
-        DatabaseReference ref= FirebaseDatabase.getInstance().getReference("User");
-
-        ref.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
-                userList.clear();
-                for (DataSnapshot ds: dataSnapshot.getChildren())
-                {
-                    ModelUser modelUser =ds.getValue(ModelUser.class);
-                    if (!modelUser.getUid().equals(FUser.getUid()))
-                    {
-                        userList.add(modelUser);
-
-                    }
-                    //adapter
-                    adapterUsers = new AdapterUsers(getActivity(),userList);
-                    //set adapter
-                    recyclerView.setAdapter(adapterUsers);
-
-                }
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-
-    }
-
-    private void searhUsers(final String query)
-    {
-
-        final FirebaseUser FUser = FirebaseAuth.getInstance().getCurrentUser();
-        DatabaseReference ref= FirebaseDatabase.getInstance().getReference("User");
-
-        ref.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
-                userList.clear();
-                for (DataSnapshot ds: dataSnapshot.getChildren())
-                {
-                    ModelUser modelUser =ds.getValue(ModelUser.class);
+    recyclerView = view.findViewById(R.id.user_recyclerViewID);
+    recyclerView.setHasFixedSize(true);
+    recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
 
-                    if (!modelUser.getUid().equals(FUser.getUid()))
-                    {
-                        if (modelUser.getName().toLowerCase().contains(query.toLowerCase())||modelUser.getEmail().toLowerCase().contains(query.toLowerCase()))
-                        {
-                            userList.add(modelUser);
-                        }
+    //init userList
+    userList = new ArrayList<>();
+    //get All users
+    getAllUsers();
 
+    return view;
+  }
 
-                    }
-                    //adapter
-                    adapterUsers = new AdapterUsers(getActivity(),userList);
-                    adapterUsers.notifyDataSetChanged();
-                    //set adapter
-                    recyclerView.setAdapter(adapterUsers);
+  private void getAllUsers()
+  {
+    //get current user
+    final FirebaseUser FUser = FirebaseAuth.getInstance().getCurrentUser();
+    DatabaseReference ref= FirebaseDatabase.getInstance().getReference("User");
 
-                }
+    ref.addValueEventListener(new ValueEventListener() {
+      @Override
+      public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-
-
-    }
-
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        setHasOptionsMenu(true);
-        super.onCreate(savedInstanceState);
-    }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_main,menu);
-
-           //hide add post icon from this fragment
-        menu.findItem(R.id.addPostID).setVisible(false);
-
-
-
-        MenuItem item = menu.findItem(R.id.searchID);
-      SearchView searchView = (SearchView) MenuItemCompat.getActionView(item);
-       //SearchView searchView = (SearchView) MenuItemCompat.getActionView(item);
-
-
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String s) {
-                //called when user press search button
-                if (!TextUtils.isEmpty(s.trim()))
-                {
-                   searhUsers(s);
-                }
-                else
-                {
-                    getAllUsers();
-                }
-
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String s1) {
-                //cal when user press any single latter
-                //called when user press search button
-                if (!TextUtils.isEmpty(s1.trim()))
-                {
-                    searhUsers(s1);
-                }
-                else
-                {
-                    getAllUsers();
-                }
-
-                return false;
-            }
-        });
-
-
-
-        super.onCreateOptionsMenu(menu,inflater);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        int id = item.getItemId();
-
-        if (id==R.id.logoutID)
+        userList.clear();
+        for (DataSnapshot ds: dataSnapshot.getChildren())
         {
-            firebaseAuth.signOut();
-            checkUserState();
+          ModelUser modelUser =ds.getValue(ModelUser.class);
+          if (!modelUser.getUid().equals(FUser.getUid()))
+          {
+            userList.add(modelUser);
+
+          }
+          //adapter
+          adapterUsers = new AdapterUsers(getActivity(),userList);
+          //set adapter
+          recyclerView.setAdapter(adapterUsers);
+
         }
 
-        return super.onOptionsItemSelected(item);
-    }
+      }
 
-    private  void checkUserState()
-    {
-        FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+      @Override
+      public void onCancelled(@NonNull DatabaseError databaseError) {
 
-        if (firebaseUser!=null)
+      }
+    });
+
+  }
+
+  private void searhUsers(final String query)
+  {
+
+    final FirebaseUser FUser = FirebaseAuth.getInstance().getCurrentUser();
+    DatabaseReference ref= FirebaseDatabase.getInstance().getReference("User");
+
+    ref.addValueEventListener(new ValueEventListener() {
+      @Override
+      public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+        userList.clear();
+        for (DataSnapshot ds: dataSnapshot.getChildren())
         {
-            //Stay here
-            // profileTv.setText(firebaseUser.getEmail());
+          ModelUser modelUser =ds.getValue(ModelUser.class);
+
+
+          if (!modelUser.getUid().equals(FUser.getUid()))
+          {
+            if (modelUser.getName().toLowerCase().contains(query.toLowerCase())||modelUser.getEmail().toLowerCase().contains(query.toLowerCase()))
+            {
+              userList.add(modelUser);
+            }
+
+
+          }
+          //adapter
+          adapterUsers = new AdapterUsers(getActivity(),userList);
+          adapterUsers.notifyDataSetChanged();
+          //set adapter
+          recyclerView.setAdapter(adapterUsers);
+
+        }
+
+      }
+
+      @Override
+      public void onCancelled(@NonNull DatabaseError databaseError) {
+
+      }
+    });
+
+
+  }
+
+
+  @Override
+  public void onCreate(@Nullable Bundle savedInstanceState) {
+    setHasOptionsMenu(true);
+    super.onCreate(savedInstanceState);
+  }
+
+  @Override
+  public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    inflater.inflate(R.menu.menu_main,menu);
+
+    //hide add post icon from this fragment
+    menu.findItem(R.id.addPostID).setVisible(false);
+
+
+
+    MenuItem item = menu.findItem(R.id.searchID);
+    SearchView searchView = (SearchView) MenuItemCompat.getActionView(item);
+    //SearchView searchView = (SearchView) MenuItemCompat.getActionView(item);
+
+
+    searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+      @Override
+      public boolean onQueryTextSubmit(String s) {
+        //called when user press search button
+        if (!TextUtils.isEmpty(s.trim()))
+        {
+          searhUsers(s);
         }
         else
         {
-            Intent intent = new Intent(getActivity(),MainActivity.class);
-            startActivity(intent);
-            getActivity().finish();
+          getAllUsers();
         }
+
+        return false;
+      }
+
+      @Override
+      public boolean onQueryTextChange(String s1) {
+        //cal when user press any single latter
+        //called when user press search button
+        if (!TextUtils.isEmpty(s1.trim()))
+        {
+          searhUsers(s1);
+        }
+        else
+        {
+          getAllUsers();
+        }
+
+        return false;
+      }
+    });
+
+
+
+    super.onCreateOptionsMenu(menu,inflater);
+  }
+
+  @Override
+  public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+    int id = item.getItemId();
+
+    if (id==R.id.logoutID)
+    {
+      firebaseAuth.signOut();
+      checkUserState();
     }
+
+    return super.onOptionsItemSelected(item);
+  }
+
+  private  void checkUserState()
+  {
+    FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+
+    if (firebaseUser!=null)
+    {
+      //Stay here
+      // profileTv.setText(firebaseUser.getEmail());
+    }
+    else
+    {
+      Intent intent = new Intent(getActivity(),MainActivity.class);
+      startActivity(intent);
+      getActivity().finish();
+    }
+  }
 
 
 }

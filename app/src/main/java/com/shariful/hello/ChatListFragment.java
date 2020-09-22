@@ -27,59 +27,59 @@ import com.google.firebase.auth.FirebaseUser;
  */
 public class ChatListFragment extends Fragment {
 
-    FirebaseAuth firebaseAuth;
+  FirebaseAuth firebaseAuth;
 
-    public ChatListFragment() {
-        // Required empty public constructor
-    }
-
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_chat_list, container, false);
-
-        firebaseAuth= FirebaseAuth.getInstance();
-
-        return  view;
-    }
+  public ChatListFragment() {
+    // Required empty public constructor
+  }
 
 
+  @Override
+  public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                           Bundle savedInstanceState) {
+    // Inflate the layout for this fragment
+    View view = inflater.inflate(R.layout.fragment_chat_list, container, false);
+
+    firebaseAuth= FirebaseAuth.getInstance();
+
+    return  view;
+  }
 
 
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        setHasOptionsMenu(true);
-        super.onCreate(savedInstanceState);
-    }
 
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_main,menu);
 
-        //hide add post icon from this fragment
-        menu.findItem(R.id.addPostID).setVisible(false);
-        super.onCreateOptionsMenu(menu,inflater);
-    }
+  @Override
+  public void onCreate(@Nullable Bundle savedInstanceState) {
+    setHasOptionsMenu(true);
+    super.onCreate(savedInstanceState);
+  }
 
-    private  void checkUserState()
+  @Override
+  public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    inflater.inflate(R.menu.menu_main,menu);
+
+    //hide add post icon from this fragment
+    menu.findItem(R.id.addPostID).setVisible(false);
+    super.onCreateOptionsMenu(menu,inflater);
+  }
+
+  private  void checkUserState()
+  {
+    FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+
+    if (firebaseUser!=null)
     {
-        FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
-
-        if (firebaseUser!=null)
-        {
-            //Stay here
-            // profileTv.setText(firebaseUser.getEmail());
-        }
-        else
-        {
-            Intent intent = new Intent(getActivity(),MainActivity.class);
-            startActivity(intent);
-            getActivity().finish();
-        }
+      //Stay here
+      // profileTv.setText(firebaseUser.getEmail());
     }
+    else
+    {
+      Intent intent = new Intent(getActivity(),MainActivity.class);
+      startActivity(intent);
+      getActivity().finish();
+    }
+  }
 
 
 }

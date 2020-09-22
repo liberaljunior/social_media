@@ -12,7 +12,7 @@ import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
-   Button mRegisterBtn,mLoginBtn;
+    Button mRegisterBtn,mLoginBtn;
 
 
     @Override
@@ -23,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
         mRegisterBtn=findViewById(R.id.registrationBtnID);
         mLoginBtn=findViewById(R.id.loginBtnID);
 
-      //  mLoginBtn.setBackgroundColor(getResources().getColor(R.color.colorAccent));
+        //  mLoginBtn.setBackgroundColor(getResources().getColor(R.color.colorAccent));
 
         mRegisterBtn.setOnClickListener(new View.OnClickListener() {
             @Override

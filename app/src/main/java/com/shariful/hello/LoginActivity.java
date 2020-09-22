@@ -39,294 +39,294 @@ import java.util.HashMap;
 
 public class LoginActivity extends AppCompatActivity {
 
-    private static final int RC_SIGN_IN = 100;
-   GoogleSignInClient mGoogleSignInClient;
-    EditText emailET_login,passET_login;
-    Button loginBtn;
-    SignInButton mGoogleLoginBtn;
+  private static final int RC_SIGN_IN = 100;
+  GoogleSignInClient mGoogleSignInClient;
+  EditText emailET_login,passET_login;
+  Button loginBtn;
+  SignInButton mGoogleLoginBtn;
 
-    TextView BackToRegister,forgotPass;
-    ProgressDialog progressDialog;
-    private FirebaseAuth mAuth;
+  TextView BackToRegister,forgotPass;
+  ProgressDialog progressDialog;
+  private FirebaseAuth mAuth;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_login);
 
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setTitle("Login");
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setDisplayShowHomeEnabled(true);
+    ActionBar actionBar = getSupportActionBar();
+    actionBar.setTitle("Login");
+    actionBar.setDisplayHomeAsUpEnabled(true);
+    actionBar.setDisplayShowHomeEnabled(true);
 
-        progressDialog=new ProgressDialog(this);
-
-
-        // Configure Google Sign In
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id))
-                .requestEmail()
-                .build();
-         mGoogleSignInClient = GoogleSignIn.getClient(this,gso);
-
-        mAuth= FirebaseAuth.getInstance();
-
-        emailET_login=findViewById(R.id.email_loginID);
-        passET_login=findViewById(R.id.pass_loginlID);
-        loginBtn=findViewById(R.id.loginBtn);
-        BackToRegister=findViewById(R.id.backToRegisterPageID);
-        forgotPass=findViewById(R.id.forgotPassID);
-        mGoogleLoginBtn=findViewById(R.id.goggleLoginBtnID);
+    progressDialog=new ProgressDialog(this);
 
 
+    // Configure Google Sign In
+    GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(getString(R.string.default_web_client_id))
+            .requestEmail()
+            .build();
+    mGoogleSignInClient = GoogleSignIn.getClient(this,gso);
+
+    mAuth= FirebaseAuth.getInstance();
+
+    emailET_login=findViewById(R.id.email_loginID);
+    passET_login=findViewById(R.id.pass_loginlID);
+    loginBtn=findViewById(R.id.loginBtn);
+    BackToRegister=findViewById(R.id.backToRegisterPageID);
+    forgotPass=findViewById(R.id.forgotPassID);
+    mGoogleLoginBtn=findViewById(R.id.goggleLoginBtnID);
 
 
-        mGoogleLoginBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                Intent signInIntent = mGoogleSignInClient.getSignInIntent();
-                startActivityForResult(signInIntent, RC_SIGN_IN);
-
-            }
-        });
 
 
-        loginBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+    mGoogleLoginBtn.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+
+        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+        startActivityForResult(signInIntent, RC_SIGN_IN);
+
+      }
+    });
 
 
-                String email=emailET_login.getText().toString();
-                String pass=passET_login.getText().toString();
+    loginBtn.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
 
-                if (!Patterns.EMAIL_ADDRESS.matcher(email).matches())
-                {
-                    emailET_login.setError("Invslid Email");
-                    emailET_login.setFocusable(true);
+
+        String email=emailET_login.getText().toString();
+        String pass=passET_login.getText().toString();
+
+        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches())
+        {
+          emailET_login.setError("Invslid Email");
+          emailET_login.setFocusable(true);
+        }
+        else if (pass.length()<6)
+        {
+          passET_login.setError("Minimum 6 characters needed");
+          passET_login.setFocusable(true);
+        }
+
+        else
+        {
+
+          LoginUser(email,pass);
+
+        }
+
+
+      }
+    });
+
+
+    BackToRegister.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        startActivity(new Intent(LoginActivity.this,RegisterActivity.class));
+        finish();
+      }
+    });
+
+
+    forgotPass.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+
+        showRecoverPassDialog();
+
+      }
+    });
+
+  }
+
+  private void showRecoverPassDialog()
+  {
+    AlertDialog.Builder builder= new AlertDialog.Builder(this);
+    builder.setTitle("Recover Password");
+
+    LinearLayout linearLayout = new LinearLayout(this);
+    final EditText emailEt =new EditText(this);
+    emailEt.setHint("Email");
+    emailEt.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+    emailEt.setMinEms(16);
+
+    linearLayout.addView(emailEt);
+    emailEt.setPadding(10,10,10,10);
+    builder.setView(linearLayout);
+
+    builder.setPositiveButton("Recover", new DialogInterface.OnClickListener() {
+      @Override
+      public void onClick(DialogInterface dialog, int which) {
+
+        String email=emailEt.getText().toString();
+
+        beginRecovery(email);
+
+      }
+    });
+
+    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+      @Override
+      public void onClick(DialogInterface dialog, int which) {
+        dialog.dismiss();
+
+      }
+    });
+    builder.create().show();
+
+
+
+  }
+
+  private void beginRecovery(String email)
+  {
+    progressDialog.setMessage("Sending email.....");
+    progressDialog.show();
+    mAuth.sendPasswordResetEmail(email).addOnCompleteListener(new OnCompleteListener<Void>() {
+      @Override
+      public void onComplete(@NonNull Task<Void> task) {
+        if (task.isSuccessful())
+        {
+          progressDialog.dismiss();
+          Toast.makeText(LoginActivity.this, "Cheack your email to reset password", Toast.LENGTH_LONG).show();
+        }
+        else
+        {
+          progressDialog.dismiss();
+          Toast.makeText(LoginActivity.this, "Failed to reset Password !!", Toast.LENGTH_SHORT).show();
+        }
+
+      }
+    }).addOnFailureListener(new OnFailureListener() {
+      @Override
+      public void onFailure(@NonNull Exception e) {
+        progressDialog.dismiss();
+        Toast.makeText(LoginActivity.this, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
+
+      }
+    });
+  }
+
+  private void LoginUser(String email, String pass)
+  {
+
+    progressDialog.setMessage("Signing.....");
+    progressDialog.show();
+    mAuth.signInWithEmailAndPassword(email, pass)
+            .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+              @Override
+              public void onComplete(@NonNull Task<AuthResult> task) {
+                if (task.isSuccessful()) {
+                  // Sign in success, update UI with the signed-in user's information
+                  progressDialog.dismiss();
+                  Toast.makeText(LoginActivity.this, "Login Success !!", Toast.LENGTH_SHORT).show();
+                  FirebaseUser user = mAuth.getCurrentUser();
+                  Intent intent = new Intent(LoginActivity.this, DashboardActivity.class);
+                  startActivity(intent);
+                  finish();
                 }
-                else if (pass.length()<6)
-                {
-                    passET_login.setError("Minimum 6 characters needed");
-                    passET_login.setFocusable(true);
-                }
-
                 else
                 {
-
-                    LoginUser(email,pass);
-
+                  // If sign in fails, display a message to the user.
+                  progressDialog.dismiss();
+                  Toast.makeText(LoginActivity.this, "Authentication failed.",Toast.LENGTH_SHORT).show();
                 }
+              }
+            }).addOnFailureListener(new OnFailureListener() {
+      @Override
+      public void onFailure(@NonNull Exception e) {
+        progressDialog.dismiss();
+        Toast.makeText(LoginActivity.this, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
+      }
+    });
+
+  }
+
+  @Override
+  public boolean onSupportNavigateUp() {
+    onBackPressed();
+    return super.onSupportNavigateUp();
+  }
 
 
-            }
-        });
+  @Override
+  public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    super.onActivityResult(requestCode, resultCode, data);
 
-
-        BackToRegister.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(LoginActivity.this,RegisterActivity.class));
-                finish();
-            }
-        });
-
-
-        forgotPass.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                showRecoverPassDialog();
-
-            }
-        });
-
+    // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
+    if (requestCode == RC_SIGN_IN) {
+      Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+      try {
+        // Google Sign In was successful, authenticate with Firebase
+        GoogleSignInAccount account = task.getResult(ApiException.class);
+        Toast.makeText(this, ""+ account.getId(), Toast.LENGTH_SHORT).show();
+        firebaseAuthWithGoogle(account.getIdToken());
+      } catch (ApiException e) {
+        // Google Sign In failed, update UI appropriately
+        Toast.makeText(this, "Failed !!"+e.getMessage(), Toast.LENGTH_SHORT).show();
+        // ...
+      }
     }
-
-    private void showRecoverPassDialog()
-    {
-        AlertDialog.Builder builder= new AlertDialog.Builder(this);
-        builder.setTitle("Recover Password");
-
-        LinearLayout linearLayout = new LinearLayout(this);
-        final EditText emailEt =new EditText(this);
-        emailEt.setHint("Email");
-        emailEt.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
-        emailEt.setMinEms(16);
-
-        linearLayout.addView(emailEt);
-        emailEt.setPadding(10,10,10,10);
-        builder.setView(linearLayout);
-
-        builder.setPositiveButton("Recover", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-
-                String email=emailEt.getText().toString();
-
-                beginRecovery(email);
-
-            }
-        });
-
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-
-            }
-        });
-        builder.create().show();
+  }
 
 
-
-    }
-
-    private void beginRecovery(String email)
-    {
-        progressDialog.setMessage("Sending email.....");
-        progressDialog.show();
-        mAuth.sendPasswordResetEmail(email).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
+  private void firebaseAuthWithGoogle(String idToken) {
+    AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
+    mAuth.signInWithCredential(credential)
+            .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+              @Override
+              public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful())
                 {
-                    progressDialog.dismiss();
-                    Toast.makeText(LoginActivity.this, "Cheack your email to reset password", Toast.LENGTH_LONG).show();
+                  // Sign in success, update UI with the signed-in user's information
+                  startActivity(new Intent(LoginActivity.this, DashboardActivity.class));
+                  Toast.makeText(LoginActivity.this, "Login Scuccess !", Toast.LENGTH_SHORT).show();
+                  FirebaseUser user = mAuth.getCurrentUser();
+
+                  if (task.getResult().getAdditionalUserInfo().isNewUser())
+                  {
+
+                    String email=user.getEmail();
+                    String uid=user.getUid();
+
+                    HashMap<Object,String> hashMap = new HashMap<>();
+
+                    hashMap.put("email",email);
+                    hashMap.put("uid",uid);
+                    hashMap.put("name","");
+                    hashMap.put("onlineStatus","online");
+                    hashMap.put("typingTo","noOne");
+                    hashMap.put("phone","");
+                    hashMap.put("image","");
+                    hashMap.put("cover","");
+
+                    FirebaseDatabase database =FirebaseDatabase.getInstance();
+                    DatabaseReference reference = database.getReference("User");
+                    //put data within hasmap in database
+                    reference.child(uid).setValue(hashMap);
+
+                  }
+
+                  //updateUI(user);
                 }
                 else
                 {
-                    progressDialog.dismiss();
-                    Toast.makeText(LoginActivity.this, "Failed to reset Password !!", Toast.LENGTH_SHORT).show();
+                  // If sign in fails, display a message to the user.
+                  Toast.makeText(LoginActivity.this, "Login Failed ! "+task.getException(), Toast.LENGTH_SHORT).show();
+                  // updateUI(null);
                 }
-
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                progressDialog.dismiss();
-                Toast.makeText(LoginActivity.this, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
-
-            }
-        });
-    }
-
-    private void LoginUser(String email, String pass)
-         {
-
-             progressDialog.setMessage("Signing.....");
-             progressDialog.show();
-             mAuth.signInWithEmailAndPassword(email, pass)
-                     .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                         @Override
-                         public void onComplete(@NonNull Task<AuthResult> task) {
-                             if (task.isSuccessful()) {
-                                 // Sign in success, update UI with the signed-in user's information
-                                 progressDialog.dismiss();
-                                 Toast.makeText(LoginActivity.this, "Login Success !!", Toast.LENGTH_SHORT).show();
-                                 FirebaseUser user = mAuth.getCurrentUser();
-                                 Intent intent = new Intent(LoginActivity.this, DashboardActivity.class);
-                                 startActivity(intent);
-                                  finish();
-                             }
-                             else
-                                 {
-                                 // If sign in fails, display a message to the user.
-                                     progressDialog.dismiss();
-                                 Toast.makeText(LoginActivity.this, "Authentication failed.",Toast.LENGTH_SHORT).show();
-                                 }
-                         }
-                     }).addOnFailureListener(new OnFailureListener() {
-                 @Override
-                 public void onFailure(@NonNull Exception e) {
-                     progressDialog.dismiss();
-                     Toast.makeText(LoginActivity.this, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
-                 }
-             });
-
-         }
-
-    @Override
-    public boolean onSupportNavigateUp() {
-        onBackPressed();
-        return super.onSupportNavigateUp();
-    }
-
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
-        if (requestCode == RC_SIGN_IN) {
-            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-            try {
-                // Google Sign In was successful, authenticate with Firebase
-                GoogleSignInAccount account = task.getResult(ApiException.class);
-                Toast.makeText(this, ""+ account.getId(), Toast.LENGTH_SHORT).show();
-                firebaseAuthWithGoogle(account.getIdToken());
-            } catch (ApiException e) {
-                // Google Sign In failed, update UI appropriately
-                Toast.makeText(this, "Failed !!"+e.getMessage(), Toast.LENGTH_SHORT).show();
-                // ...
-            }
-        }
-    }
-
-
-    private void firebaseAuthWithGoogle(String idToken) {
-        AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
-        mAuth.signInWithCredential(credential)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful())
-                        {
-                            // Sign in success, update UI with the signed-in user's information
-                            startActivity(new Intent(LoginActivity.this, DashboardActivity.class));
-                            Toast.makeText(LoginActivity.this, "Login Scuccess !", Toast.LENGTH_SHORT).show();
-                            FirebaseUser user = mAuth.getCurrentUser();
-
-                            if (task.getResult().getAdditionalUserInfo().isNewUser())
-                            {
-
-                                String email=user.getEmail();
-                                String uid=user.getUid();
-
-                                HashMap<Object,String> hashMap = new HashMap<>();
-
-                                hashMap.put("email",email);
-                                hashMap.put("uid",uid);
-                                hashMap.put("name","");
-                                hashMap.put("onlineStatus","online");
-                                hashMap.put("typingTo","noOne");
-                                hashMap.put("phone","");
-                                hashMap.put("image","");
-                                hashMap.put("cover","");
-
-                                FirebaseDatabase database =FirebaseDatabase.getInstance();
-                                DatabaseReference reference = database.getReference("User");
-                                //put data within hasmap in database
-                                reference.child(uid).setValue(hashMap);
-
-                            }
-
-                            //updateUI(user);
-                        }
-                        else
-                            {
-                            // If sign in fails, display a message to the user.
-                            Toast.makeText(LoginActivity.this, "Login Failed ! "+task.getException(), Toast.LENGTH_SHORT).show();
-                           // updateUI(null);
-                             }
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(LoginActivity.this, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
+              }
+            }).addOnFailureListener(new OnFailureListener() {
+      @Override
+      public void onFailure(@NonNull Exception e) {
+        Toast.makeText(LoginActivity.this, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
+      }
+    });
+  }
 
 
 

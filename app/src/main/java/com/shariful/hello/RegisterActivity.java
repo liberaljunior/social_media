@@ -27,135 +27,135 @@ import java.util.HashMap;
 
 public class RegisterActivity extends AppCompatActivity {
 
-    EditText emailEt,passwordEt;
-    Button registerBtn;
-    ProgressDialog progressDialog;
-    TextView enterLoginPageBtn;
+  EditText emailEt,passwordEt;
+  Button registerBtn;
+  ProgressDialog progressDialog;
+  TextView enterLoginPageBtn;
 
-    private FirebaseAuth mAuth;
+  private FirebaseAuth mAuth;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_register);
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_register);
 
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setTitle("Create Account");
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setDisplayShowHomeEnabled(true);
+    ActionBar actionBar = getSupportActionBar();
+    actionBar.setTitle("Create Account");
+    actionBar.setDisplayHomeAsUpEnabled(true);
+    actionBar.setDisplayShowHomeEnabled(true);
 
-        emailEt=findViewById(R.id.emailID);
-        passwordEt=findViewById(R.id.passlID);
-        registerBtn=findViewById(R.id.registerBtnID);
-        enterLoginPageBtn=findViewById(R.id.backToLoginPageID);
+    emailEt=findViewById(R.id.emailID);
+    passwordEt=findViewById(R.id.passlID);
+    registerBtn=findViewById(R.id.registerBtnID);
+    enterLoginPageBtn=findViewById(R.id.backToLoginPageID);
 
-        mAuth=FirebaseAuth.getInstance();
+    mAuth=FirebaseAuth.getInstance();
 
-        progressDialog= new ProgressDialog(this);
-        progressDialog.setMessage("Registering.....");
-
-
-        enterLoginPageBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(RegisterActivity.this,LoginActivity.class));
-            }
-        });
-
-        registerBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String email=emailEt.getText().toString();
-                String password=passwordEt.getText().toString();
-
-                  if (!Patterns.EMAIL_ADDRESS.matcher(email).matches())
-                  {
-                      emailEt.setError("Invslid Email");
-                      emailEt.setFocusable(true);
-                  }
-                  else if (password.length()<6)
-                  {
-                      passwordEt.setError("Minimum 6 characters needed");
-                      passwordEt.setFocusable(true);
-                  }
-
-                  else
-                  {
-                       regiterUser(email,password);
-
-                  }
-
-            }
-        });
-
-    }
-
-    private void regiterUser(String email, String password)
-    {
-
-        progressDialog.show();
-        mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            progressDialog.dismiss();
-                            // Sign in success, update UI with the signed-in user's information
-                            FirebaseUser user = mAuth.getCurrentUser();
-
-                            String email=user.getEmail();
-                            String uid=user.getUid();
-
-                            HashMap<Object,String> hashMap = new HashMap<>();
-
-                            hashMap.put("email",email);
-                            hashMap.put("uid",uid);
-                            hashMap.put("name","");
-                            hashMap.put("onlineStatus","online");
-                            hashMap.put("typingTo","noOne");
-                            hashMap.put("phone","");
-                            hashMap.put("image","");
-                            hashMap.put("cover","");
-
-                            FirebaseDatabase database =FirebaseDatabase.getInstance();
-                            DatabaseReference reference = database.getReference("User");
-                            //put data within hasmap in database
-                            reference.child(uid).setValue(hashMap);
+    progressDialog= new ProgressDialog(this);
+    progressDialog.setMessage("Registering.....");
 
 
-                            Toast.makeText(RegisterActivity.this, "Registration Successful .."+user.getEmail(), Toast.LENGTH_SHORT).show();
+    enterLoginPageBtn.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        startActivity(new Intent(RegisterActivity.this,LoginActivity.class));
+      }
+    });
 
-                            Intent intent = new Intent(RegisterActivity.this, DashboardActivity.class);
-                            startActivity(intent);
-                            finish();
+    registerBtn.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        String email=emailEt.getText().toString();
+        String password=passwordEt.getText().toString();
 
-                        }
+        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches())
+        {
+          emailEt.setError("Invslid Email");
+          emailEt.setFocusable(true);
+        }
+        else if (password.length()<6)
+        {
+          passwordEt.setError("Minimum 6 characters needed");
+          passwordEt.setFocusable(true);
+        }
 
-                        else
-                            {
-                            // If sign in fails, display a message to the user.
-                                progressDialog.dismiss();
-                            Toast.makeText(RegisterActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
+        else
+        {
+          regiterUser(email,password);
 
-                        }
+        }
 
-                        // ...
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                progressDialog.dismiss();
-                Toast.makeText(RegisterActivity.this, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
+      }
+    });
 
-    }
+  }
+
+  private void regiterUser(String email, String password)
+  {
+
+    progressDialog.show();
+    mAuth.createUserWithEmailAndPassword(email, password)
+            .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+              @Override
+              public void onComplete(@NonNull Task<AuthResult> task) {
+                if (task.isSuccessful()) {
+                  progressDialog.dismiss();
+                  // Sign in success, update UI with the signed-in user's information
+                  FirebaseUser user = mAuth.getCurrentUser();
+
+                  String email=user.getEmail();
+                  String uid=user.getUid();
+
+                  HashMap<Object,String> hashMap = new HashMap<>();
+
+                  hashMap.put("email",email);
+                  hashMap.put("uid",uid);
+                  hashMap.put("name","");
+                  hashMap.put("onlineStatus","online");
+                  hashMap.put("typingTo","noOne");
+                  hashMap.put("phone","");
+                  hashMap.put("image","");
+                  hashMap.put("cover","");
+
+                  FirebaseDatabase database =FirebaseDatabase.getInstance();
+                  DatabaseReference reference = database.getReference("User");
+                  //put data within hasmap in database
+                  reference.child(uid).setValue(hashMap);
+
+
+                  Toast.makeText(RegisterActivity.this, "Registration Successful .."+user.getEmail(), Toast.LENGTH_SHORT).show();
+
+                  Intent intent = new Intent(RegisterActivity.this, DashboardActivity.class);
+                  startActivity(intent);
+                  finish();
+
+                }
+
+                else
+                {
+                  // If sign in fails, display a message to the user.
+                  progressDialog.dismiss();
+                  Toast.makeText(RegisterActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
+
+                }
+
+                // ...
+              }
+            }).addOnFailureListener(new OnFailureListener() {
+      @Override
+      public void onFailure(@NonNull Exception e) {
+        progressDialog.dismiss();
+        Toast.makeText(RegisterActivity.this, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
+      }
+    });
+
+  }
 
 
 
-    @Override
-    public boolean onSupportNavigateUp() {
-        onBackPressed();
-        return super.onSupportNavigateUp();
-    }
+  @Override
+  public boolean onSupportNavigateUp() {
+    onBackPressed();
+    return super.onSupportNavigateUp();
+  }
 }
